@@ -1,0 +1,255 @@
+{
+  "version": "1.0.0",
+  "databases": {
+    "goals": {
+      "title": "Goals",
+      "icon": "🎯",
+      "description": "Multi-level goal tracking with progress analytics",
+      "properties": {
+        "Name": { "type": "title" },
+        "Status": {
+          "type": "select",
+          "options": ["Not Started", "In Progress", "On Hold", "Completed", "Abandoned"]
+        },
+        "Goal Type": {
+          "type": "select",
+          "options": ["Annual", "Quarterly", "Monthly", "Weekly", "Daily"]
+        },
+        "Progress": { "type": "number", "format": "percent" },
+        "Start Date": { "type": "date" },
+        "Target Date": { "type": "date" },
+        "Category": {
+          "type": "multi_select",
+          "options": ["Career", "Health", "Finance", "Personal", "Relationships", "Learning"]
+        },
+        "Priority": {
+          "type": "select",
+          "options": ["Critical", "High", "Medium", "Low"]
+        }
+      },
+      "formulas": {
+        "Days Remaining": "dateBetween(prop(\"Target Date\"), now(), \"days\")",
+        "Expected Progress": "(dateBetween(now(), prop(\"Start Date\"), \"days\") / dateBetween(prop(\"Target Date\"), prop(\"Start Date\"), \"days\")) * 100",
+        "On Track": "if(prop(\"Progress\") >= prop(\"Expected Progress\"), \"✅\", \"⚠️\")"
+      },
+      "relations": {
+        "Parent Goal": "goals",
+        "Sub-goals": "goals",
+        "Action Items": "tasks",
+        "Related Workouts": "workouts"
+      }
+    },
+    "tasks": {
+      "title": "Tasks",
+      "icon": "✅",
+      "description": "Action items with time-blocking",
+      "properties": {
+        "Task Name": { "type": "title" },
+        "Status": {
+          "type": "select",
+          "options": ["To Do", "In Progress", "Done", "Blocked"]
+        },
+        "Priority": {
+          "type": "select",
+          "options": ["Critical", "High", "Medium", "Low"]
+        },
+        "Date": { "type": "date" },
+        "Time Block": {
+          "type": "select",
+          "options": ["Morning", "Midday", "Afternoon", "Evening", "Anytime"]
+        },
+        "Estimated Duration": { "type": "number" },
+        "Actual Duration": { "type": "number" }
+      },
+      "relations": {
+        "Related Goal": "goals",
+        "Related Project": "projects"
+      }
+    },
+    "workouts": {
+      "title": "Workouts",
+      "icon": "💪",
+      "description": "Workout logging with exercise tracking",
+      "properties": {
+        "Workout Name": { "type": "title" },
+        "Date": { "type": "date" },
+        "Type": {
+          "type": "select",
+          "options": ["Cardio", "Strength", "Flexibility", "Sports", "Other"]
+        },
+        "Duration": { "type": "number" },
+        "Intensity": {
+          "type": "select",
+          "options": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+        },
+        "Muscle Groups": {
+          "type": "multi_select",
+          "options": ["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Full Body"]
+        }
+      },
+      "relations": {
+        "Exercises": "exercises",
+        "Related Goal": "goals"
+      },
+      "rollups": {
+        "Total Volume": {
+          "relation": "Exercises",
+          "property": "Volume",
+          "function": "sum"
+        }
+      }
+    },
+    "exercises": {
+      "title": "Exercises",
+      "icon": "🏋️",
+      "description": "Exercise library with personal records",
+      "properties": {
+        "Exercise Name": { "type": "title" },
+        "Type": {
+          "type": "select",
+          "options": ["Cardio", "Strength", "Flexibility"]
+        },
+        "Primary Muscle": {
+          "type": "select",
+          "options": ["Chest", "Back", "Legs", "Shoulders", "Arms", "Core"]
+        },
+        "Sets": { "type": "number" },
+        "Reps": { "type": "number" },
+        "Weight": { "type": "number" },
+        "Personal Best Weight": { "type": "number" },
+        "Personal Best Date": { "type": "date" }
+      },
+      "formulas": {
+        "Volume": "prop(\"Sets\") * prop(\"Reps\") * prop(\"Weight\")"
+      }
+    },
+    "meals": {
+      "title": "Meals",
+      "icon": "🍽️",
+      "description": "Meal logging with macro tracking",
+      "properties": {
+        "Meal Name": { "type": "title" },
+        "Date": { "type": "date" },
+        "Meal Type": {
+          "type": "select",
+          "options": ["Breakfast", "Lunch", "Dinner", "Snack"]
+        }
+      },
+      "relations": {
+        "Recipes": "recipes"
+      },
+      "rollups": {
+        "Total Calories": {
+          "relation": "Recipes",
+          "property": "Calories per Serving",
+          "function": "sum"
+        },
+        "Total Protein": {
+          "relation": "Recipes",
+          "property": "Protein",
+          "function": "sum"
+        },
+        "Total Carbs": {
+          "relation": "Recipes",
+          "property": "Carbs",
+          "function": "sum"
+        },
+        "Total Fats": {
+          "relation": "Recipes",
+          "property": "Fats",
+          "function": "sum"
+        }
+      }
+    },
+    "recipes": {
+      "title": "Recipes",
+      "icon": "📖",
+      "description": "Recipe library with nutritional info",
+      "properties": {
+        "Recipe Name": { "type": "title" },
+        "Cuisine Type": {
+          "type": "select",
+          "options": ["American", "Italian", "Mexican", "Asian", "Mediterranean", "Other"]
+        },
+        "Meal Type": {
+          "type": "select",
+          "options": ["Breakfast", "Lunch", "Dinner", "Snack"]
+        },
+        "Servings": { "type": "number" },
+        "Prep Time": { "type": "number" },
+        "Cook Time": { "type": "number" },
+        "Calories per Serving": { "type": "number" },
+        "Protein": { "type": "number" },
+        "Carbs": { "type": "number" },
+        "Fats": { "type": "number" }
+      },
+      "relations": {
+        "Ingredients": "ingredients"
+      },
+      "formulas": {
+        "Total Time": "prop(\"Prep Time\") + prop(\"Cook Time\")"
+      }
+    },
+    "daily_check_ins": {
+      "title": "Daily Check-ins",
+      "icon": "📝",
+      "description": "Morning planning and evening reflection",
+      "properties": {
+        "Date": { "type": "date" },
+        "Morning Energy": {
+          "type": "select",
+          "options": ["High", "Medium", "Low"]
+        },
+        "Evening Mood": {
+          "type": "select",
+          "options": ["Excellent", "Good", "Neutral", "Low", "Poor"]
+        },
+        "Workout Completed": { "type": "checkbox" },
+        "Nutrition Goal Met": { "type": "checkbox" },
+        "Sleep Hours": { "type": "number" },
+        "Overall Rating": {
+          "type": "select",
+          "options": ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
+        }
+      },
+      "relations": {
+        "Habits Completed": "habits",
+        "Related Goals": "goals"
+      }
+    },
+    "habits": {
+      "title": "Habits",
+      "icon": "⭐",
+      "description": "Habit tracking with streaks",
+      "properties": {
+        "Habit Name": { "type": "title" },
+        "Category": {
+          "type": "select",
+          "options": ["Health", "Productivity", "Learning", "Social", "Self-Care"]
+        },
+        "Frequency Goal": {
+          "type": "select",
+          "options": ["Daily", "Weekly", "Monthly"]
+        },
+        "Current Streak": { "type": "number" },
+        "Longest Streak": { "type": "number" },
+        "Last Completed": { "type": "date" }
+      },
+      "relations": {
+        "Related Goal": "goals"
+      }
+    }
+  },
+  "creation_order": [
+    "goals",
+    "projects",
+    "tasks",
+    "workouts",
+    "exercises",
+    "meals",
+    "recipes",
+    "ingredients",
+    "daily_check_ins",
+    "habits"
+  ]
+}

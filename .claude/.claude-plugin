@@ -1,0 +1,92 @@
+{
+  "name": "notion-comprehensive-system",
+  "version": "1.0.0",
+  "description": "Complete productivity and wellness system builder for Notion with goal tracking, fitness logging, nutrition planning, and daily check-ins",
+  "author": "OpenAnalyst",
+  "license": "MIT",
+  "repository": "https://github.com/openanalyst/notion-comprehensive-system",
+  
+  "capabilities": {
+    "database_creation": true,
+    "database_querying": true,
+    "page_creation": true,
+    "page_updates": true,
+    "formula_generation": true,
+    "relation_setup": true,
+    "view_configuration": true,
+    "analytics": true
+  },
+  
+  "dependencies": {
+    "mcp_servers": ["@notionhq/notion-mcp-server"],
+    "required_permissions": ["read", "update", "insert"]
+  },
+  
+  "skills": [
+    {
+      "path": "SKILL.md",
+      "name": "notion-comprehensive-system",
+      "type": "primary"
+    }
+  ],
+  
+  "commands": [
+    {
+      "trigger": ["setup notion system", "create notion workspace", "build notion databases"],
+      "description": "Create complete interconnected Notion system",
+      "handler": "setup_complete_system"
+    },
+    {
+      "trigger": ["morning check-in", "daily planning", "start my day"],
+      "description": "Create daily check-in with planning and reflection",
+      "handler": "create_daily_checkin"
+    },
+    {
+      "trigger": ["create goal", "new goal", "track goal"],
+      "description": "Create goal with automatic sub-goal generation",
+      "handler": "create_goal_with_subgoals"
+    },
+    {
+      "trigger": ["log workout", "workout log", "record exercise"],
+      "description": "Log workout with exercises and volume tracking",
+      "handler": "log_workout"
+    },
+    {
+      "trigger": ["meal plan", "generate meals", "plan nutrition"],
+      "description": "Generate balanced meal plan with grocery list",
+      "handler": "generate_meal_plan"
+    },
+    {
+      "trigger": ["goal progress", "how am I doing", "goal analysis"],
+      "description": "Analyze goal progress and generate report",
+      "handler": "analyze_goal_progress"
+    },
+    {
+      "trigger": ["weekly review", "weekly report", "week summary"],
+      "description": "Generate comprehensive weekly review",
+      "handler": "generate_weekly_review"
+    }
+  ],
+  
+  "settings": {
+    "default_workspace_location": "root",
+    "auto_link_related_items": true,
+    "generate_progress_reports": true,
+    "create_multiple_views": true,
+    "enable_formulas": true,
+    "enable_rollups": true
+  },
+  
+  "templates": {
+    "databases": "templates/database-schemas.json",
+    "pages": "templates/page-templates.json",
+    "views": "templates/view-configs.json"
+  },
+  
+  "documentation": {
+    "readme": "README.md",
+    "reference": "reference/database-schemas.md",
+    "examples": "examples/",
+    "quickstart": "QUICK_START.md"
+  }
+}
