@@ -1,0 +1,210 @@
+{
+  "name": "10x-notion-team-skills",
+  "version": "2.0.0",
+  "description": "Enterprise team management with RACI matrix for Notion - Multi-team collaboration, delegation, analytics, and organization-wide productivity tracking. Transform Notion into a complete team management powerhouse.",
+  "author": {
+    "name": "10X.in",
+    "email": "contact@10x.in",
+    "url": "https://10x.in"
+  },
+  "homepage": "https://github.com/10xin/10x-notion-team-skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/10xin/10x-notion-team-skills.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "notion",
+    "team-management",
+    "raci-matrix",
+    "delegation",
+    "enterprise",
+    "collaboration",
+    "productivity",
+    "project-management",
+    "task-management",
+    "organization",
+    "claude-code",
+    "mcp"
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0"
+  },
+  "capabilities": {
+    "database_creation": true,
+    "database_querying": true,
+    "page_creation": true,
+    "page_updates": true,
+    "formula_generation": true,
+    "relation_setup": true,
+    "view_configuration": true,
+    "analytics": true,
+    "team_management": true,
+    "raci_matrix": true,
+    "delegation": true,
+    "audit_logging": true,
+    "skill_id_management": true,
+    "role_based_access": true
+  },
+  "dependencies": {
+    "mcp_servers": [
+      "@notionhq/notion-mcp-server"
+    ],
+    "required_permissions": [
+      "read",
+      "update",
+      "insert"
+    ]
+  },
+  "skills": [
+    {
+      "path": "skills/setup/SKILL.md",
+      "name": "10x-setup",
+      "type": "primary",
+      "description": "Initialize organization with complete team management system"
+    },
+    {
+      "path": "skills/admin/SKILL.md",
+      "name": "10x-admin",
+      "type": "admin",
+      "description": "Administrative commands for user and team management"
+    },
+    {
+      "path": "skills/delegation/SKILL.md",
+      "name": "10x-delegate",
+      "type": "delegation",
+      "description": "Task delegation with RACI matrix support"
+    },
+    {
+      "path": "skills/team/SKILL.md",
+      "name": "10x-team",
+      "type": "team",
+      "description": "Team operations including standups and sprint planning"
+    },
+    {
+      "path": "skills/member/SKILL.md",
+      "name": "10x-member",
+      "type": "member",
+      "description": "Individual member operations and personal task views"
+    },
+    {
+      "path": "skills/analytics/SKILL.md",
+      "name": "10x-analytics",
+      "type": "analytics",
+      "description": "Team, department, and organization-wide analytics"
+    }
+  ],
+  "commands": [
+    {
+      "name": "10x-setup",
+      "trigger": ["setup organization", "create org", "initialize 10x", "setup 10x"],
+      "description": "Initialize organization with all databases and default roles",
+      "role_required": "Super Admin"
+    },
+    {
+      "name": "10x-add-user",
+      "trigger": ["add user", "new member", "invite user", "create user"],
+      "description": "Add new team member with Skill ID generation",
+      "role_required": "Admin"
+    },
+    {
+      "name": "10x-delegate",
+      "trigger": ["delegate task", "assign task", "delegate to"],
+      "description": "Delegate task with RACI role assignment",
+      "role_required": "Team Lead"
+    },
+    {
+      "name": "10x-my-tasks",
+      "trigger": ["my tasks", "my work", "what should I do"],
+      "description": "View personal task list and RACI responsibilities",
+      "role_required": "Member"
+    },
+    {
+      "name": "10x-team-board",
+      "trigger": ["team board", "team tasks", "team view"],
+      "description": "View team kanban board with all assignments",
+      "role_required": "Team Lead"
+    },
+    {
+      "name": "10x-raci-matrix",
+      "trigger": ["raci matrix", "responsibility matrix", "show raci"],
+      "description": "View or edit RACI assignments for tasks/goals",
+      "role_required": "Admin"
+    },
+    {
+      "name": "10x-standup",
+      "trigger": ["standup", "daily standup", "morning standup"],
+      "description": "Run daily standup and collect updates",
+      "role_required": "Team Lead"
+    },
+    {
+      "name": "10x-report",
+      "trigger": ["generate report", "team report", "analytics report"],
+      "description": "Generate team/department/org analytics report",
+      "role_required": "Team Lead"
+    },
+    {
+      "name": "10x-sprint",
+      "trigger": ["sprint planning", "plan sprint", "new sprint"],
+      "description": "Plan and manage sprints for agile teams",
+      "role_required": "Team Lead"
+    }
+  ],
+  "settings": {
+    "default_workspace_location": "root",
+    "auto_link_related_items": true,
+    "generate_progress_reports": true,
+    "create_multiple_views": true,
+    "enable_formulas": true,
+    "enable_rollups": true,
+    "enable_audit_logging": true,
+    "enable_skill_id_generation": true,
+    "default_visibility": "Team Only",
+    "require_raci_for_tasks": false,
+    "require_approval_for_goals": true,
+    "notification_channels": ["notion", "email"],
+    "retention_days": 365
+  },
+  "templates": {
+    "databases": "templates/team-database-schemas.json",
+    "personal_databases": "templates/database-schemas.json",
+    "raci": "templates/raci-templates.json",
+    "roles": "templates/role-templates.json"
+  },
+  "documentation": {
+    "readme": "README.md",
+    "reference": "reference/",
+    "examples": "examples/",
+    "api": "reference/api-reference.md"
+  },
+  "pricing": {
+    "model": "freemium",
+    "tiers": {
+      "free": {
+        "max_users": 5,
+        "max_teams": 2,
+        "features": ["basic_task_management", "team_board", "basic_analytics"]
+      },
+      "starter": {
+        "price": 9.99,
+        "per": "user/month",
+        "max_users": 25,
+        "max_teams": 10,
+        "features": ["all_free_features", "raci_matrix", "delegation", "sprint_planning"]
+      },
+      "professional": {
+        "price": 19.99,
+        "per": "user/month",
+        "max_users": 100,
+        "max_teams": 50,
+        "features": ["all_starter_features", "advanced_analytics", "audit_log", "custom_roles"]
+      },
+      "enterprise": {
+        "price": "custom",
+        "max_users": "unlimited",
+        "max_teams": "unlimited",
+        "features": ["all_professional_features", "sso", "api_access", "dedicated_support", "custom_integrations"]
+      }
+    }
+  }
+}

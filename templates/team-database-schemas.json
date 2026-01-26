@@ -1,0 +1,704 @@
+{
+  "version": "2.0.0",
+  "schema_type": "team_management",
+  "databases": {
+    "organizations": {
+      "title": "Organizations",
+      "icon": "🏢",
+      "description": "Company/Organization container with settings and configuration",
+      "properties": {
+        "Name": { "type": "title" },
+        "Domain": { "type": "url" },
+        "Industry": {
+          "type": "select",
+          "options": ["Technology", "Healthcare", "Finance", "Education", "Retail", "Manufacturing", "Services", "Non-Profit", "Government", "Other"]
+        },
+        "Size": {
+          "type": "select",
+          "options": ["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"]
+        },
+        "Plan": {
+          "type": "select",
+          "options": ["Free", "Starter", "Professional", "Enterprise"]
+        },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Trial", "Suspended", "Cancelled"]
+        },
+        "Created Date": { "type": "date" },
+        "Billing Email": { "type": "email" },
+        "Logo": { "type": "files" },
+        "Settings JSON": { "type": "rich_text" },
+        "Max Users": { "type": "number" },
+        "Max Teams": { "type": "number" }
+      },
+      "relations": {
+        "Departments": "departments",
+        "Admin Users": "users",
+        "All Users": "users"
+      },
+      "rollups": {
+        "Total Users": {
+          "relation": "All Users",
+          "property": "Name",
+          "function": "count"
+        },
+        "Total Departments": {
+          "relation": "Departments",
+          "property": "Name",
+          "function": "count"
+        }
+      },
+      "views": {
+        "All Organizations": { "type": "table", "default": true },
+        "By Status": { "type": "board", "group_by": "Status" },
+        "By Plan": { "type": "board", "group_by": "Plan" }
+      }
+    },
+
+    "departments": {
+      "title": "Departments",
+      "icon": "🏛️",
+      "description": "Business units within an organization",
+      "properties": {
+        "Name": { "type": "title" },
+        "Code": { "type": "rich_text" },
+        "Description": { "type": "rich_text" },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Inactive", "Restructuring"]
+        },
+        "Budget": { "type": "number", "format": "dollar" },
+        "Headcount Limit": { "type": "number" },
+        "Created Date": { "type": "date" },
+        "Color": {
+          "type": "select",
+          "options": ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Gray"]
+        }
+      },
+      "relations": {
+        "Organization": "organizations",
+        "Department Head": "users",
+        "Teams": "teams",
+        "Members": "users",
+        "Goals": "goals",
+        "Projects": "projects"
+      },
+      "rollups": {
+        "Total Teams": {
+          "relation": "Teams",
+          "property": "Name",
+          "function": "count"
+        },
+        "Total Members": {
+          "relation": "Members",
+          "property": "Name",
+          "function": "count"
+        },
+        "Active Goals": {
+          "relation": "Goals",
+          "property": "Status",
+          "function": "count"
+        }
+      },
+      "formulas": {
+        "Budget Utilization": "if(prop(\"Budget\") > 0, round((prop(\"Total Members\") * 80000 / prop(\"Budget\")) * 100), 0)",
+        "Headcount Status": "if(prop(\"Total Members\") >= prop(\"Headcount Limit\"), \"🔴 Full\", if(prop(\"Total Members\") >= prop(\"Headcount Limit\") * 0.9, \"🟡 Near Limit\", \"🟢 Available\"))"
+      },
+      "views": {
+        "All Departments": { "type": "table", "default": true },
+        "By Organization": { "type": "board", "group_by": "Organization" },
+        "Org Chart": { "type": "gallery" },
+        "Budget Overview": { "type": "table", "properties": ["Name", "Budget", "Total Members", "Budget Utilization"] }
+      }
+    },
+
+    "teams": {
+      "title": "Teams",
+      "icon": "👥",
+      "description": "Work groups within departments",
+      "properties": {
+        "Name": { "type": "title" },
+        "Code": { "type": "rich_text" },
+        "Description": { "type": "rich_text" },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Inactive", "Forming", "Disbanding"]
+        },
+        "Team Type": {
+          "type": "select",
+          "options": ["Permanent", "Project-Based", "Cross-Functional", "Task Force", "Committee"]
+        },
+        "Created Date": { "type": "date" },
+        "Slack Channel": { "type": "url" },
+        "Meeting Schedule": { "type": "rich_text" },
+        "Capacity Points": { "type": "number" },
+        "Sprint Length": {
+          "type": "select",
+          "options": ["1 Week", "2 Weeks", "3 Weeks", "4 Weeks", "Kanban"]
+        }
+      },
+      "relations": {
+        "Department": "departments",
+        "Team Lead": "users",
+        "Members": "users",
+        "Projects": "projects",
+        "Goals": "goals",
+        "Tasks": "tasks"
+      },
+      "rollups": {
+        "Member Count": {
+          "relation": "Members",
+          "property": "Name",
+          "function": "count"
+        },
+        "Active Projects": {
+          "relation": "Projects",
+          "property": "Status",
+          "function": "count"
+        },
+        "Open Tasks": {
+          "relation": "Tasks",
+          "property": "Status",
+          "function": "count"
+        }
+      },
+      "formulas": {
+        "Team Size": "prop(\"Member Count\") + 1",
+        "Velocity": "if(prop(\"Capacity Points\") > 0, round(prop(\"Open Tasks\") / prop(\"Member Count\")), 0)"
+      },
+      "views": {
+        "All Teams": { "type": "table", "default": true },
+        "By Department": { "type": "board", "group_by": "Department" },
+        "By Status": { "type": "board", "group_by": "Status" },
+        "Team Cards": { "type": "gallery" },
+        "Capacity Planning": { "type": "table", "properties": ["Name", "Member Count", "Capacity Points", "Open Tasks", "Velocity"] }
+      }
+    },
+
+    "users": {
+      "title": "Users",
+      "icon": "👤",
+      "description": "Team members with Skill IDs and permissions",
+      "properties": {
+        "Name": { "type": "title" },
+        "Email": { "type": "email" },
+        "Skill ID": { "type": "rich_text" },
+        "Notion Person": { "type": "people" },
+        "Avatar": { "type": "files" },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Inactive", "On Leave", "Offboarded"]
+        },
+        "Employment Type": {
+          "type": "select",
+          "options": ["Full-Time", "Part-Time", "Contractor", "Intern", "Consultant"]
+        },
+        "Start Date": { "type": "date" },
+        "End Date": { "type": "date" },
+        "Phone": { "type": "phone_number" },
+        "Location": { "type": "rich_text" },
+        "Timezone": {
+          "type": "select",
+          "options": ["UTC-12", "UTC-11", "UTC-10", "UTC-9", "UTC-8", "UTC-7", "UTC-6", "UTC-5", "UTC-4", "UTC-3", "UTC-2", "UTC-1", "UTC+0", "UTC+1", "UTC+2", "UTC+3", "UTC+4", "UTC+5", "UTC+5:30", "UTC+6", "UTC+7", "UTC+8", "UTC+9", "UTC+10", "UTC+11", "UTC+12"]
+        },
+        "Bio": { "type": "rich_text" },
+        "Skills Tags": {
+          "type": "multi_select",
+          "options": ["JavaScript", "Python", "Java", "Design", "Marketing", "Sales", "Finance", "HR", "Management", "Data Analysis", "DevOps", "QA", "Product", "Support"]
+        },
+        "Last Active": { "type": "date" },
+        "Notification Preferences": { "type": "rich_text" }
+      },
+      "relations": {
+        "Organization": "organizations",
+        "Department": "departments",
+        "Role": "roles",
+        "Primary Team": "teams",
+        "Additional Teams": "teams",
+        "Manager": "users",
+        "Direct Reports": "users",
+        "Assigned Tasks": "tasks",
+        "Owned Goals": "goals",
+        "RACI Assignments": "raci_assignments"
+      },
+      "rollups": {
+        "Task Count": {
+          "relation": "Assigned Tasks",
+          "property": "Name",
+          "function": "count"
+        },
+        "Completed Tasks": {
+          "relation": "Assigned Tasks",
+          "property": "Status",
+          "function": "count"
+        },
+        "Direct Reports Count": {
+          "relation": "Direct Reports",
+          "property": "Name",
+          "function": "count"
+        }
+      },
+      "formulas": {
+        "Full Name with ID": "prop(\"Name\") + \" (\" + prop(\"Skill ID\") + \")\"",
+        "Is Manager": "if(prop(\"Direct Reports Count\") > 0, \"Yes\", \"No\")",
+        "Tenure Days": "if(empty(prop(\"Start Date\")), 0, dateBetween(now(), prop(\"Start Date\"), \"days\"))",
+        "Active Status": "if(prop(\"Status\") == \"Active\", \"🟢\", if(prop(\"Status\") == \"On Leave\", \"🟡\", \"🔴\"))"
+      },
+      "views": {
+        "All Users": { "type": "table", "default": true },
+        "By Department": { "type": "board", "group_by": "Department" },
+        "By Team": { "type": "board", "group_by": "Primary Team" },
+        "By Role": { "type": "board", "group_by": "Role" },
+        "Active Users": { "type": "table", "filter": { "Status": "Active" } },
+        "Org Directory": { "type": "gallery" },
+        "Managers": { "type": "table", "filter": { "Is Manager": "Yes" } }
+      }
+    },
+
+    "roles": {
+      "title": "Roles",
+      "icon": "🎭",
+      "description": "Permission templates and access levels",
+      "properties": {
+        "Name": { "type": "title" },
+        "Code": { "type": "rich_text" },
+        "Description": { "type": "rich_text" },
+        "Access Level": {
+          "type": "select",
+          "options": ["Super Admin", "Admin", "Team Lead", "Member", "Viewer", "Guest"]
+        },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Deprecated", "Draft"]
+        },
+        "Can Delegate": { "type": "checkbox" },
+        "Can Create Goals": { "type": "checkbox" },
+        "Can Create Tasks": { "type": "checkbox" },
+        "Can Assign Tasks": { "type": "checkbox" },
+        "Can View All Teams": { "type": "checkbox" },
+        "Can Manage Users": { "type": "checkbox" },
+        "Can Manage Teams": { "type": "checkbox" },
+        "Can Access Reports": { "type": "checkbox" },
+        "Can Export Data": { "type": "checkbox" },
+        "Can Configure System": { "type": "checkbox" },
+        "Can Delete Items": { "type": "checkbox" },
+        "Scope": {
+          "type": "select",
+          "options": ["Organization", "Department", "Team", "Self"]
+        },
+        "Custom Permissions JSON": { "type": "rich_text" }
+      },
+      "relations": {
+        "Organization": "organizations",
+        "Users with Role": "users",
+        "Parent Role": "roles"
+      },
+      "rollups": {
+        "User Count": {
+          "relation": "Users with Role",
+          "property": "Name",
+          "function": "count"
+        }
+      },
+      "formulas": {
+        "Permission Summary": "if(prop(\"Can Delegate\"), \"Delegate \", \"\") + if(prop(\"Can Create Goals\"), \"Goals \", \"\") + if(prop(\"Can Manage Users\"), \"Users \", \"\") + if(prop(\"Can Manage Teams\"), \"Teams \", \"\")",
+        "Is Admin Role": "if(prop(\"Access Level\") == \"Super Admin\" or prop(\"Access Level\") == \"Admin\", \"Yes\", \"No\")"
+      },
+      "views": {
+        "All Roles": { "type": "table", "default": true },
+        "By Access Level": { "type": "board", "group_by": "Access Level" },
+        "Permission Matrix": { "type": "table", "properties": ["Name", "Can Delegate", "Can Create Goals", "Can Assign Tasks", "Can Manage Users", "Can Manage Teams", "Can Access Reports"] },
+        "Active Roles": { "type": "table", "filter": { "Status": "Active" } }
+      }
+    },
+
+    "raci_assignments": {
+      "title": "RACI Assignments",
+      "icon": "📋",
+      "description": "Responsibility matrix assignments (Responsible, Accountable, Consulted, Informed)",
+      "properties": {
+        "Name": { "type": "title" },
+        "RACI Type": {
+          "type": "select",
+          "options": ["R - Responsible", "A - Accountable", "C - Consulted", "I - Informed"]
+        },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Completed", "Cancelled", "On Hold"]
+        },
+        "Assignment Date": { "type": "date" },
+        "Due Date": { "type": "date" },
+        "Completion Date": { "type": "date" },
+        "Notes": { "type": "rich_text" },
+        "Priority": {
+          "type": "select",
+          "options": ["Critical", "High", "Medium", "Low"]
+        },
+        "Notification Sent": { "type": "checkbox" },
+        "Acknowledged": { "type": "checkbox" },
+        "Acknowledged Date": { "type": "date" }
+      },
+      "relations": {
+        "User": "users",
+        "Task": "tasks",
+        "Goal": "goals",
+        "Project": "projects",
+        "Assigned By": "users"
+      },
+      "formulas": {
+        "RACI Code": "slice(prop(\"RACI Type\"), 0, 1)",
+        "Is Overdue": "if(and(not(empty(prop(\"Due Date\"))), prop(\"Due Date\") < now(), prop(\"Status\") != \"Completed\"), \"🔴 Overdue\", \"\")",
+        "Days Until Due": "if(empty(prop(\"Due Date\")), 0, dateBetween(prop(\"Due Date\"), now(), \"days\"))",
+        "Response Time": "if(and(not(empty(prop(\"Assignment Date\"))), not(empty(prop(\"Acknowledged Date\")))), dateBetween(prop(\"Acknowledged Date\"), prop(\"Assignment Date\"), \"hours\"), 0)"
+      },
+      "views": {
+        "All Assignments": { "type": "table", "default": true },
+        "By User": { "type": "board", "group_by": "User" },
+        "By RACI Type": { "type": "board", "group_by": "RACI Type" },
+        "My Responsibilities": { "type": "table", "filter": { "RACI Type": "R - Responsible" } },
+        "My Accountabilities": { "type": "table", "filter": { "RACI Type": "A - Accountable" } },
+        "Pending Acknowledgment": { "type": "table", "filter": { "Acknowledged": false } },
+        "Overdue": { "type": "table", "filter": { "Is Overdue": "🔴 Overdue" } },
+        "RACI Matrix View": { "type": "table", "properties": ["Task", "User", "RACI Type", "Status", "Due Date"] }
+      }
+    },
+
+    "skill_id_registry": {
+      "title": "Skill ID Registry",
+      "icon": "🔑",
+      "description": "Central registry mapping Skill IDs to users and Notion accounts",
+      "properties": {
+        "Skill ID": { "type": "title" },
+        "Status": {
+          "type": "select",
+          "options": ["Active", "Reserved", "Revoked", "Expired"]
+        },
+        "Created Date": { "type": "date" },
+        "Expiry Date": { "type": "date" },
+        "Last Used": { "type": "date" },
+        "API Key Hash": { "type": "rich_text" },
+        "Usage Count": { "type": "number" },
+        "Rate Limit": { "type": "number" },
+        "Permissions JSON": { "type": "rich_text" },
+        "IP Whitelist": { "type": "rich_text" },
+        "Notes": { "type": "rich_text" }
+      },
+      "relations": {
+        "User": "users",
+        "Organization": "organizations",
+        "Issued By": "users"
+      },
+      "formulas": {
+        "Is Expired": "if(and(not(empty(prop(\"Expiry Date\"))), prop(\"Expiry Date\") < now()), \"Yes\", \"No\")",
+        "Days Until Expiry": "if(empty(prop(\"Expiry Date\")), 999, dateBetween(prop(\"Expiry Date\"), now(), \"days\"))",
+        "Usage Status": "if(prop(\"Usage Count\") >= prop(\"Rate Limit\"), \"🔴 Limit Reached\", if(prop(\"Usage Count\") >= prop(\"Rate Limit\") * 0.8, \"🟡 Near Limit\", \"🟢 OK\"))"
+      },
+      "views": {
+        "All Skill IDs": { "type": "table", "default": true },
+        "By Organization": { "type": "board", "group_by": "Organization" },
+        "Active IDs": { "type": "table", "filter": { "Status": "Active" } },
+        "Expiring Soon": { "type": "table", "filter": { "Days Until Expiry": { "less_than": 30 } } },
+        "Usage Dashboard": { "type": "table", "properties": ["Skill ID", "User", "Usage Count", "Rate Limit", "Usage Status"] }
+      }
+    },
+
+    "audit_log": {
+      "title": "Audit Log",
+      "icon": "📜",
+      "description": "Activity tracking and audit trail",
+      "properties": {
+        "Timestamp": { "type": "date" },
+        "Action": {
+          "type": "select",
+          "options": ["Create", "Update", "Delete", "Assign", "Delegate", "Complete", "Login", "Logout", "Export", "Configure", "Approve", "Reject"]
+        },
+        "Entity Type": {
+          "type": "select",
+          "options": ["Task", "Goal", "Project", "User", "Team", "Department", "Role", "RACI", "Setting"]
+        },
+        "Entity ID": { "type": "rich_text" },
+        "Entity Name": { "type": "title" },
+        "Old Value": { "type": "rich_text" },
+        "New Value": { "type": "rich_text" },
+        "IP Address": { "type": "rich_text" },
+        "User Agent": { "type": "rich_text" },
+        "Session ID": { "type": "rich_text" },
+        "Success": { "type": "checkbox" },
+        "Error Message": { "type": "rich_text" }
+      },
+      "relations": {
+        "User": "users",
+        "Organization": "organizations"
+      },
+      "views": {
+        "Recent Activity": { "type": "table", "default": true, "sort": { "Timestamp": "descending" } },
+        "By User": { "type": "board", "group_by": "User" },
+        "By Action": { "type": "board", "group_by": "Action" },
+        "By Entity": { "type": "board", "group_by": "Entity Type" },
+        "Errors Only": { "type": "table", "filter": { "Success": false } },
+        "Security Events": { "type": "table", "filter": { "Action": ["Login", "Logout", "Configure"] } }
+      }
+    }
+  },
+
+  "enhanced_databases": {
+    "goals": {
+      "new_properties": {
+        "Owner": { "type": "relation", "database": "users" },
+        "Accountable": { "type": "relation", "database": "users" },
+        "Consulted": { "type": "relation", "database": "users" },
+        "Informed": { "type": "relation", "database": "users" },
+        "Team": { "type": "relation", "database": "teams" },
+        "Department": { "type": "relation", "database": "departments" },
+        "Visibility": {
+          "type": "select",
+          "options": ["Public", "Team Only", "Department Only", "Private"]
+        },
+        "Approval Status": {
+          "type": "select",
+          "options": ["Draft", "Pending Approval", "Approved", "Rejected", "Revision Required"]
+        },
+        "Approved By": { "type": "relation", "database": "users" },
+        "Approval Date": { "type": "date" }
+      },
+      "new_views": {
+        "My Goals": { "type": "table", "filter": { "Owner": "current_user" } },
+        "Team Goals": { "type": "board", "group_by": "Team" },
+        "Department Goals": { "type": "board", "group_by": "Department" },
+        "Pending Approval": { "type": "table", "filter": { "Approval Status": "Pending Approval" } }
+      }
+    },
+
+    "tasks": {
+      "new_properties": {
+        "Assigned To": { "type": "relation", "database": "users" },
+        "Delegated By": { "type": "relation", "database": "users" },
+        "RACI Role": {
+          "type": "select",
+          "options": ["R - Responsible", "A - Accountable", "C - Consulted", "I - Informed"]
+        },
+        "Team": { "type": "relation", "database": "teams" },
+        "Department": { "type": "relation", "database": "departments" },
+        "Visibility": {
+          "type": "select",
+          "options": ["Public", "Team Only", "Department Only", "Assignee Only"]
+        },
+        "Delegation Date": { "type": "date" },
+        "Delegation Notes": { "type": "rich_text" },
+        "Requires Approval": { "type": "checkbox" },
+        "Approved": { "type": "checkbox" },
+        "Approved By": { "type": "relation", "database": "users" }
+      },
+      "new_views": {
+        "My Tasks": { "type": "table", "filter": { "Assigned To": "current_user" } },
+        "Delegated by Me": { "type": "table", "filter": { "Delegated By": "current_user" } },
+        "Team Board": { "type": "board", "group_by": "Status" },
+        "By Assignee": { "type": "board", "group_by": "Assigned To" },
+        "Pending Approval": { "type": "table", "filter": { "Requires Approval": true, "Approved": false } }
+      }
+    },
+
+    "projects": {
+      "new_properties": {
+        "Project Manager": { "type": "relation", "database": "users" },
+        "Sponsor": { "type": "relation", "database": "users" },
+        "Stakeholders": { "type": "relation", "database": "users" },
+        "Team": { "type": "relation", "database": "teams" },
+        "Department": { "type": "relation", "database": "departments" },
+        "Budget": { "type": "number", "format": "dollar" },
+        "Spent": { "type": "number", "format": "dollar" },
+        "Visibility": {
+          "type": "select",
+          "options": ["Public", "Team Only", "Department Only", "Stakeholders Only"]
+        }
+      },
+      "new_formulas": {
+        "Budget Remaining": "prop(\"Budget\") - prop(\"Spent\")",
+        "Budget Utilization": "if(prop(\"Budget\") > 0, round((prop(\"Spent\") / prop(\"Budget\")) * 100), 0)"
+      }
+    }
+  },
+
+  "default_roles": [
+    {
+      "name": "Super Admin",
+      "code": "SA",
+      "access_level": "Super Admin",
+      "scope": "Organization",
+      "permissions": {
+        "can_delegate": true,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": true,
+        "can_view_all_teams": true,
+        "can_manage_users": true,
+        "can_manage_teams": true,
+        "can_access_reports": true,
+        "can_export_data": true,
+        "can_configure_system": true,
+        "can_delete_items": true
+      }
+    },
+    {
+      "name": "Admin",
+      "code": "AD",
+      "access_level": "Admin",
+      "scope": "Organization",
+      "permissions": {
+        "can_delegate": true,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": true,
+        "can_view_all_teams": true,
+        "can_manage_users": true,
+        "can_manage_teams": true,
+        "can_access_reports": true,
+        "can_export_data": true,
+        "can_configure_system": false,
+        "can_delete_items": true
+      }
+    },
+    {
+      "name": "Department Head",
+      "code": "DH",
+      "access_level": "Admin",
+      "scope": "Department",
+      "permissions": {
+        "can_delegate": true,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": true,
+        "can_view_all_teams": false,
+        "can_manage_users": true,
+        "can_manage_teams": true,
+        "can_access_reports": true,
+        "can_export_data": true,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    },
+    {
+      "name": "Team Lead",
+      "code": "TL",
+      "access_level": "Team Lead",
+      "scope": "Team",
+      "permissions": {
+        "can_delegate": true,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": true,
+        "can_view_all_teams": false,
+        "can_manage_users": false,
+        "can_manage_teams": false,
+        "can_access_reports": true,
+        "can_export_data": false,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    },
+    {
+      "name": "Senior Member",
+      "code": "SM",
+      "access_level": "Member",
+      "scope": "Team",
+      "permissions": {
+        "can_delegate": true,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": false,
+        "can_view_all_teams": false,
+        "can_manage_users": false,
+        "can_manage_teams": false,
+        "can_access_reports": true,
+        "can_export_data": false,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    },
+    {
+      "name": "Member",
+      "code": "MB",
+      "access_level": "Member",
+      "scope": "Self",
+      "permissions": {
+        "can_delegate": false,
+        "can_create_goals": true,
+        "can_create_tasks": true,
+        "can_assign_tasks": false,
+        "can_view_all_teams": false,
+        "can_manage_users": false,
+        "can_manage_teams": false,
+        "can_access_reports": false,
+        "can_export_data": false,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    },
+    {
+      "name": "Viewer",
+      "code": "VW",
+      "access_level": "Viewer",
+      "scope": "Self",
+      "permissions": {
+        "can_delegate": false,
+        "can_create_goals": false,
+        "can_create_tasks": false,
+        "can_assign_tasks": false,
+        "can_view_all_teams": false,
+        "can_manage_users": false,
+        "can_manage_teams": false,
+        "can_access_reports": false,
+        "can_export_data": false,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    },
+    {
+      "name": "Guest",
+      "code": "GS",
+      "access_level": "Guest",
+      "scope": "Self",
+      "permissions": {
+        "can_delegate": false,
+        "can_create_goals": false,
+        "can_create_tasks": false,
+        "can_assign_tasks": false,
+        "can_view_all_teams": false,
+        "can_manage_users": false,
+        "can_manage_teams": false,
+        "can_access_reports": false,
+        "can_export_data": false,
+        "can_configure_system": false,
+        "can_delete_items": false
+      }
+    }
+  ],
+
+  "skill_id_format": {
+    "pattern": "{ORG}-{DEPT}-{ROLE}-{SEQ}",
+    "components": {
+      "ORG": { "type": "organization_code", "length": 3, "case": "upper" },
+      "DEPT": { "type": "department_code", "length": 3, "case": "upper" },
+      "ROLE": { "type": "role_code", "length": 2, "case": "upper" },
+      "SEQ": { "type": "sequence", "length": 3, "padding": "0" }
+    },
+    "examples": [
+      "10X-ENG-TL-001",
+      "10X-MKT-MB-003",
+      "10X-FIN-AD-001",
+      "10X-HR-DH-001"
+    ]
+  },
+
+  "creation_order": [
+    "organizations",
+    "roles",
+    "departments",
+    "teams",
+    "users",
+    "skill_id_registry",
+    "raci_assignments",
+    "audit_log"
+  ]
+}
